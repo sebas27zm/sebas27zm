@@ -1,0 +1,125 @@
+DIAGRAMA UML - SISTEMA BANCARIO FINAL (ASCII)
+=====================================================
+
+INTERFACES:
+-----------
+<<interface>>
+ITransaccion
++retirar(double): boolean
++pagar(double): boolean
+
+<<interface>>
+IDeposito
++depositar(double): boolean
+
+<<interface>>
+IAbono
++abonar(double): boolean
+
+<<interface>>
+IInteres
++generarIntereses(): void
++getPorcentajeInteres(): double
++setPorcentajeInteres(double): void
+
+CLASES ABSTRACTAS:
+------------------
+<<abstract>>
+Usuario
+#nombre: String
+#apellidos: String
+#numeroCedula: String
+#correoElectronico: String
+#contrasena: String
++validarCredenciales(String, String): boolean
++toString(): String
+
+<<abstract>>
+Cuenta (implements ITransaccion)
+#numeroCuenta: int
+#saldo: double
+#activa: boolean
+#propietario: Cliente
++retirar(double): boolean (abstract)
++pagar(double): boolean (abstract)
++getTipoCuenta(): String (abstract)
+
+CLASES CONCRETAS - USUARIOS:
+----------------------------
+Administrador extends Usuario
++toString(): String
+
+Cliente extends Usuario
+-sexo: String
+-profesion: String
+-direccion: String
+-cuentas: List<Cuenta>
++agregarCuenta(Cuenta): void
++reporteCuentas(): String
+
+CLASES CONCRETAS - CUENTAS:
+---------------------------
+CuentaAhorro extends Cuenta implements IDeposito, IInteres
+-SALDO_MINIMO: double = 100.0
+-porcentajeInteres: double
++depositar(double): boolean
++generarIntereses(): void
+
+CuentaDebito extends Cuenta implements IDeposito, IInteres
+-porcentajeInteres: double
++depositar(double): boolean
++generarIntereses(): void
+
+CuentaCredito extends Cuenta implements IAbono
+-limiteCredito: double
+-tipo: String
++abonar(double): boolean
++getCreditoDisponible(): double
+
+CLASES DE ARQUITECTURA:
+-----------------------
+SistemaBancarioBI
+-administrador: Administrador
+-clientes: List<Cliente>
++crearAdministrador(...): boolean
++registrarCliente(...): boolean
++crearCuentaAhorro(...): boolean
++realizarTransacciones(...): boolean
+
+SistemaBancarioUI
+-logicaNegocio: SistemaBancarioBI
+-scanner: Scanner
++iniciar(): void
++main(String[]): void
+
+RELACIONES:
+-----------
+Usuario <|-- Administrador (herencia)
+Usuario <|-- Cliente (herencia)
+Cuenta <|-- CuentaAhorro (herencia)
+Cuenta <|-- CuentaDebito (herencia)
+Cuenta <|-- CuentaCredito (herencia)
+
+Cliente "1" *-- "0..*" Cuenta (composición)
+SistemaBancarioBI "1" *-- "0..1" Administrador (composición)
+SistemaBancarioBI "1" *-- "0..*" Cliente (composición)
+SistemaBancarioUI "1" *-- "1" SistemaBancarioBI (composición)
+
+ARQUITECTURA MODULAR:
+---------------------
+┌─────────────────────┐
+│   SistemaBancarioUI │ <- Capa de Presentación
+│   (User Interface)  │
+└─────────────────────┘
+           │
+           ▼
+┌─────────────────────┐
+│   SistemaBancarioBI │ <- Capa de Lógica de Negocio
+│ (Business Logic)    │
+└─────────────────────┘
+           │
+           ▼
+┌─────────────────────┐
+│   Modelo de Datos   │ <- Entidades (Usuario, Cuenta, etc.)
+│   (Entities)        │
+└─────────────────────┘
