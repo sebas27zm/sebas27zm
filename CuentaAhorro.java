@@ -1,4 +1,4 @@
-public class CuentaAhorro extends Cuenta {
+public class CuentaAhorro extends Cuenta implements IDeposito, IInteres {
     private static final double SALDO_MINIMO = 100.0;
     private double porcentajeInteres;
     
@@ -15,6 +15,7 @@ public class CuentaAhorro extends Cuenta {
         return "Cuenta de Ahorro";
     }
     
+    @Override
     public boolean depositar(double monto) {
         if (!validarTransaccion(monto)) {
             return false;
@@ -57,6 +58,7 @@ public class CuentaAhorro extends Cuenta {
         return true;
     }
     
+    @Override
     public void generarIntereses() {
         if (!activa) {
             System.out.println("No se pueden generar intereses en una cuenta inactiva.");
@@ -69,10 +71,12 @@ public class CuentaAhorro extends Cuenta {
         System.out.println("Nuevo saldo: $" + String.format("%.2f", saldo));
     }
     
+    @Override
     public double getPorcentajeInteres() {
         return porcentajeInteres;
     }
     
+    @Override
     public void setPorcentajeInteres(double porcentajeInteres) {
         this.porcentajeInteres = porcentajeInteres;
     }

@@ -1,4 +1,4 @@
-public class CuentaCredito extends Cuenta {
+public class CuentaCredito extends Cuenta implements IAbono {
     private double limiteCredito;
     private String tipo;
     
@@ -16,6 +16,7 @@ public class CuentaCredito extends Cuenta {
         return "Cuenta de Crédito";
     }
     
+    @Override
     public boolean abonar(double monto) {
         if (!validarTransaccion(monto)) {
             return false;
