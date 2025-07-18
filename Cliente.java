@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
-public class Cliente extends Usuario {
+public class Cliente extends Usuario implements IGestionCuentas {
     private String sexo;
     private String profesion;
     private String direccion;
@@ -27,10 +27,12 @@ public class Cliente extends Usuario {
     public void setProfesion(String profesion) { this.profesion = profesion; }
     public void setDireccion(String direccion) { this.direccion = direccion; }
     
+    @Override
     public void agregarCuenta(Cuenta cuenta) {
         cuentas.add(cuenta);
     }
     
+    @Override
     public void removerCuenta(Cuenta cuenta) {
         cuentas.remove(cuenta);
     }
