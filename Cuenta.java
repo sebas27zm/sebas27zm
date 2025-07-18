@@ -1,4 +1,4 @@
-public abstract class Cuenta {
+public abstract class Cuenta implements ITransaccion {
     protected static int contadorCuentas = 1;
     protected int numeroCuenta;
     protected double saldo;

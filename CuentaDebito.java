@@ -1,4 +1,4 @@
-public class CuentaDebito extends Cuenta {
+public class CuentaDebito extends Cuenta implements IDeposito, IInteres {
     private double porcentajeInteres;
     
     public CuentaDebito(Cliente propietario, double saldoInicial, double porcentajeInteres) {
@@ -14,6 +14,7 @@ public class CuentaDebito extends Cuenta {
         return "Cuenta de Débito";
     }
     
+    @Override
     public boolean depositar(double monto) {
         if (!validarTransaccion(monto)) {
             return false;
@@ -56,6 +57,7 @@ public class CuentaDebito extends Cuenta {
         return true;
     }
     
+    @Override
     public void generarIntereses() {
         if (!activa) {
             System.out.println("No se pueden generar intereses en una cuenta inactiva.");
@@ -68,10 +70,12 @@ public class CuentaDebito extends Cuenta {
         System.out.println("Nuevo saldo: $" + String.format("%.2f", saldo));
     }
     
+    @Override
     public double getPorcentajeInteres() {
         return porcentajeInteres;
     }
     
+    @Override
     public void setPorcentajeInteres(double porcentajeInteres) {
         this.porcentajeInteres = porcentajeInteres;
     }
