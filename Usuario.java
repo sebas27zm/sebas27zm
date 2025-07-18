@@ -1,4 +1,4 @@
-public abstract class Usuario implements IValidacion {
+public abstract class Usuario {
     protected String nombre;
     protected String apellidos;
     protected String numeroCedula;
@@ -27,7 +27,6 @@ public abstract class Usuario implements IValidacion {
     public void setCorreoElectronico(String correoElectronico) { this.correoElectronico = correoElectronico; }
     public void setContrasena(String contrasena) { this.contrasena = contrasena; }
     
-    @Override
     public boolean validarCredenciales(String correo, String contrasena) {
         return this.correoElectronico.equals(correo) && this.contrasena.equals(contrasena);
     }
