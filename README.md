@@ -43,11 +43,12 @@ Sistema completo de gestión de cuentas bancarias desarrollado en Java utilizand
 
 ## Tecnologías Utilizadas
 
-- **Java 11+**: Lenguaje de programación principal
+- **Java 11+**: Lenguaje de programación principal con **JPMS (Java Platform Module System)**
 - **Java Swing**: Interfaz gráfica de usuario
 - **MySQL 8.0+**: Base de datos relacional
 - **Maven**: Gestión de dependencias y construcción del proyecto
 - **JDBC**: Conectividad con base de datos
+- **Módulos Java**: Arquitectura modular con encapsulación fuerte
 
 ## Requisitos del Sistema
 
@@ -86,47 +87,76 @@ private static final String PASSWORD = "tu_contraseña";
 
 ### 4. Compilar y Ejecutar
 
-#### Usando Maven
+#### Usando Maven (Recomendado - con soporte modular)
 ```bash
-# Compilar el proyecto
+# Compilar el proyecto con módulos
 mvn clean compile
 
-# Ejecutar la aplicación
-mvn exec:java -Dexec.mainClass="com.sistemabancario.view.SistemaBancarioGUI"
+# Ejecutar la aplicación modular
+mvn exec:java
 
-# Crear JAR ejecutable
+# Crear JAR ejecutable modular
 mvn clean package
 java -jar target/sistema-bancario-1.0.0.jar
+
+# Ejecutar directamente con Java (modo modular)
+java --module-path target/classes:lib --module com.sistemabancario/com.sistemabancario.app.SistemaBancarioApp
 ```
 
 #### Usando IDE
 1. Importar el proyecto como proyecto Maven
-2. Ejecutar la clase principal: `com.sistemabancario.view.SistemaBancarioGUI`
+2. Asegurar que el IDE soporte Java 11+ y módulos JPMS
+3. Ejecutar la clase principal: `com.sistemabancario.app.SistemaBancarioApp`
+
+#### Comandos adicionales para desarrollo modular
+```bash
+# Verificar dependencias de módulos
+java --module-path target/classes --describe-module com.sistemabancario
+
+# Listar módulos disponibles
+java --module-path target/classes --list-modules
+
+# Crear imagen de aplicación nativa (requiere JDK con jlink)
+jlink --module-path target/classes:lib --add-modules com.sistemabancario --output dist/sistema-bancario
+```
 
 ## Estructura del Proyecto
 
 ```
-src/main/java/com/sistemabancario/
-├── model/                      # Modelos de datos
-│   ├── Usuario.java           # Clase abstracta base
-│   ├── Administrador.java     # Modelo del administrador
-│   ├── Cliente.java           # Modelo del cliente
-│   ├── Cuenta.java            # Clase abstracta de cuenta
-│   ├── CuentaAhorro.java      # Cuenta de ahorro
-│   ├── CuentaDebito.java      # Cuenta de débito
-│   ├── CuentaCredito.java     # Cuenta de crédito
-│   └── I*.java                # Interfaces
-├── view/                       # Interfaz gráfica
-│   ├── SistemaBancarioGUI.java # Ventana principal
-│   ├── LoginDialog.java        # Diálogo de login
-│   └── CrearAdministradorDialog.java # Crear admin
-├── controller/                 # Controladores
-│   └── SistemaBancarioController.java # Controlador principal
-├── dao/                        # Acceso a datos
-│   ├── I*DAO.java             # Interfaces DAO
-│   └── *DAOImpl.java          # Implementaciones DAO
-└── util/                       # Utilidades
-    └── DatabaseConnection.java # Conexión a BD
+src/main/java/
+├── module-info.java            # 🆕 Descriptor de módulo JPMS
+└── com/sistemabancario/
+    ├── app/                    # 🆕 Aplicación principal
+    │   └── SistemaBancarioApp.java # Punto de entrada modular
+    ├── service/                # 🆕 Capa de servicios
+    │   ├── BankingService.java # Interfaz de servicios
+    │   └── impl/
+    │       └── BankingServiceImpl.java # Implementación
+    ├── model/                  # Modelos de datos (EXPORTADO)
+    │   ├── Usuario.java       # Clase abstracta base
+    │   ├── Administrador.java # Modelo del administrador
+    │   ├── Cliente.java       # Modelo del cliente
+    │   ├── Cuenta.java        # Clase abstracta de cuenta
+    │   ├── CuentaAhorro.java  # Cuenta de ahorro
+    │   ├── CuentaDebito.java  # Cuenta de débito
+    │   ├── CuentaCredito.java # Cuenta de crédito
+    │   └── I*.java            # Interfaces
+    ├── view/                  # Interfaz gráfica (ENCAPSULADO)
+    │   ├── SistemaBancarioGUI.java # Ventana principal
+    │   ├── LoginDialog.java   # Diálogo de login
+    │   └── CrearAdministradorDialog.java # Crear admin
+    ├── controller/            # Controladores (EXPORTADO)
+    │   └── SistemaBancarioController.java # Controlador principal
+    ├── dao/                   # Acceso a datos (EXPORTADO)
+    │   ├── I*DAO.java        # Interfaces DAO
+    │   └── *DAOImpl.java     # Implementaciones DAO
+    └── util/                  # Utilidades (ENCAPSULADO)
+        └── DatabaseConnection.java # Conexión a BD
+
+modules/                       # 🆕 Módulos separados (opcional)
+├── sistemabancario.core/      # Módulo de lógica de negocio
+├── sistemabancario.data/      # Módulo de acceso a datos
+└── sistemabancario.ui/        # Módulo de interfaz de usuario
 ```
 
 ## Uso del Sistema
@@ -158,22 +188,71 @@ El script de base de datos incluye datos de prueba:
 - **Cliente 1**: juan.perez@email.com / juan123
 - **Cliente 2**: maria.gonzalez@email.com / maria123
 
+## Arquitectura Modular (JPMS)
+
+### 🎯 **Beneficios de la Modularidad**
+- **Encapsulación fuerte**: Los paquetes no exportados están completamente ocultos
+- **Dependencias explícitas**: Todas las dependencias declaradas en `module-info.java`
+- **Seguridad mejorada**: Acceso controlado a APIs internas
+- **Rendimiento optimizado**: Carga selectiva de módulos
+- **Mantenibilidad**: Separación clara de responsabilidades
+
+### 📦 **Estructura Modular**
+```java
+module com.sistemabancario {
+    // Dependencias del JDK
+    requires java.desktop;          // Swing GUI
+    requires java.sql;              // JDBC
+    
+    // Dependencias externas
+    requires mysql.connector.java;
+    
+    // Paquetes exportados (API pública)
+    exports com.sistemabancario.model;      // Modelos de datos
+    exports com.sistemabancario.controller; // Lógica de control
+    exports com.sistemabancario.dao;        // Interfaces DAO
+    
+    // Paquetes encapsulados (internos):
+    // - com.sistemabancario.view (UI interna)
+    // - com.sistemabancario.util (utilidades)
+    // - com.sistemabancario.service.impl (implementaciones)
+}
+```
+
+### 🔧 **Comandos Modulares**
+```bash
+# Describir módulo
+java --module-path target/classes --describe-module com.sistemabancario
+
+# Listar dependencias
+java --module-path target/classes --show-module-resolution
+
+# Ejecutar aplicación modular
+java --module-path target/classes:lib \
+     --module com.sistemabancario/com.sistemabancario.app.SistemaBancarioApp
+```
+
 ## Patrones de Diseño Implementados
 
 ### 1. Model-View-Controller (MVC)
-- **Model**: Clases en el paquete `model`
-- **View**: Interfaces gráficas en el paquete `view`
-- **Controller**: Lógica de control en el paquete `controller`
+- **Model**: Clases en el paquete `model` (EXPORTADO)
+- **View**: Interfaces gráficas en el paquete `view` (ENCAPSULADO)
+- **Controller**: Lógica de control en el paquete `controller` (EXPORTADO)
 
 ### 2. Data Access Object (DAO)
-- Interfaces DAO para abstracción del acceso a datos
-- Implementaciones concretas para MySQL
+- Interfaces DAO para abstracción del acceso a datos (EXPORTADAS)
+- Implementaciones concretas para MySQL (ENCAPSULADAS)
 - Separación clara entre lógica de negocio y persistencia
 
-### 3. Singleton
+### 3. Service Layer (Fachada)
+- **Interfaz**: `BankingService` para operaciones de alto nivel
+- **Implementación**: `BankingServiceImpl` encapsulada
+- **Beneficio**: API simplificada para la capa de presentación
+
+### 4. Singleton
 - Implementado en `DatabaseConnection` para gestión de conexiones
 
-### 4. Template Method
+### 5. Template Method
 - Implementado en la clase abstracta `Cuenta`
 
 ## Principios SOLID Aplicados

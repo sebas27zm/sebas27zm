@@ -1,0 +1,38 @@
+# Configuración de Module Path para Sistema Bancario
+# Este archivo documenta la configuración de módulos JPMS
+
+# Módulos del JDK requeridos:
+java.base
+java.desktop    # Para Java Swing
+java.sql        # Para JDBC
+
+# Módulos externos requeridos:
+mysql.connector.java
+
+# Módulos del sistema (si se separan):
+# sistemabancario.core
+# sistemabancario.data  
+# sistemabancario.ui
+
+# Comandos de ejecución con módulos:
+
+# 1. Compilar con módulos:
+# javac --module-path lib --module-source-path src/main/java -d target/classes --module com.sistemabancario
+
+# 2. Ejecutar con módulos:
+# java --module-path target/classes:lib --module com.sistemabancario/com.sistemabancario.app.SistemaBancarioApp
+
+# 3. Crear imagen de aplicación (jlink):
+# jlink --module-path target/classes:lib --add-modules com.sistemabancario --output sistema-bancario-app
+
+# 4. Ejecutar con Maven:
+# mvn clean compile exec:java
+
+# 5. Generar JAR modular:
+# mvn clean package
+
+# Notas importantes:
+# - El module-info.java debe estar en la raíz de src/main/java
+# - Los paquetes exportados son accesibles desde otros módulos
+# - Los paquetes no exportados están encapsulados
+# - Las dependencias transitive propagan automáticamente las dependencias
